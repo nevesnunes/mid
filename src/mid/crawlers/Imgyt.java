@@ -23,7 +23,7 @@ public class Imgyt extends Crawler {
 
 		String imgURL = processImageRequest(postInStr);
 
-		InputStream imageInStr = Requester.executeGet(imgURL);
+		InputStream imageInStr = executeGet(imgURL);
 		Requester.downloadImage(imgURL, imageInStr);
 	}
 }

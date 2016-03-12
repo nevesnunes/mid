@@ -19,7 +19,7 @@ public class ImgSpot extends Crawler {
 		String imgURL = processImageRequest(postInStr);
 		imgURL = "http://imgspot.org" + imgURL;		
 		
-		InputStream imageInStr = Requester.executeGet(imgURL);
+		InputStream imageInStr = executeGet(imgURL);
 		Requester.downloadImage(imgURL, imageInStr);
 	}
 }

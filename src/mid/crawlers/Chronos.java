@@ -28,7 +28,6 @@ public class Chronos extends Crawler {
 		String[] URLparts = imgURL.split("/");
 		imgURL = "http://i" + URLparts[4] + "." + URLparts[2] +
 				"/i/" + URLparts[5] + "/" + URLparts[6] + ".jpg";		
-
 		Requester.downloadImage(imgURL);
 	}
 }

@@ -4,10 +4,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import mid.Requester;
 
 public abstract class Crawler {
 	public abstract void continueCrawl(String hostURL);
@@ -23,6 +29,29 @@ public abstract class Crawler {
 			
 			continueCrawl(hostURL);
 		}
+	}
+
+	protected InputStream executeGet(String hostURL) {
+		InputStream inStr = Requester.executeGet(hostURL);
+
+		// The host may be temporarily unresponsive.
+		if (inStr == null) {
+			System.out.println("Host unresponsive. Retrying...");
+			try {
+			    URI uri = new URI(hostURL);
+			    String domain = uri.getHost();
+				if (InetAddress.getByName(domain).isReachable(5000))
+					inStr = Requester.executeGet(hostURL);
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+			
+		return inStr;
 	}
 
 	public List<String> processGet(InputStream inStr) {

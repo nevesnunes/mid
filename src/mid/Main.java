@@ -42,7 +42,7 @@ public class Main {
 			return;
 		}
 		
-		processInitialRequest(streamFromURL(target));
+		processInitialRequest(streamFromFile(target));
 	}
 	
 	private static InputStream streamFromURL(String url) {

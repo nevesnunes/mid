@@ -1,7 +1,6 @@
 package mid.crawlers;
 
 import java.io.InputStream;
-
 import mid.Requester;
 
 public class ImageBam extends Crawler {
@@ -14,11 +13,11 @@ public class ImageBam extends Crawler {
 
 	@Override
 	public void continueCrawl(String hostURL) {
-		InputStream postInStr = Requester.executeGet(hostURL);
+		InputStream postInStr = executeGet(hostURL);
 
 		String imgURL = processImageRequestRegex(postInStr);
 
-		InputStream imageInStr = Requester.executeGet(imgURL);
+		InputStream imageInStr = executeGet(imgURL);
 		Requester.downloadImage(imgURL, imageInStr);
 	}
 }
