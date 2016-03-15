@@ -18,6 +18,9 @@ import mid.crawlers.*;
 
 public class Main {
 	public static void main(String[] args) {
+		System.out.println("Enter URL or file path...");
+		
+		// Read URL
 		String target = "";
 		BufferedReader br = null;
 		try {
@@ -37,12 +40,12 @@ public class Main {
 			}
 		}
 		
-		if (target.isEmpty()) {
+		if (target == null || target.isEmpty()) {
 			System.out.println("No target passed. Exiting...");
 			return;
 		}
 		
-		processInitialRequest(streamFromFile(target));
+		processInitialRequest(streamFromURL(target));
 	}
 	
 	private static InputStream streamFromURL(String url) {
@@ -68,6 +71,7 @@ public class Main {
 			saveFolder.mkdirs();
 		Requester.setSaveFolderName(saveFolderName);
 
+		// Search for URLs in the page source
 		BufferedReader br = new BufferedReader(new InputStreamReader(inStr));
 		String line = null;
 		try {
