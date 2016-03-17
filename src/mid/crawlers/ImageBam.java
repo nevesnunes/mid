@@ -1,5 +1,6 @@
 package mid.crawlers;
 
+import java.io.IOException;
 import java.io.InputStream;
 import mid.Requester;
 
@@ -12,7 +13,7 @@ public class ImageBam extends Crawler {
 	}
 
 	@Override
-	public void continueCrawl(String hostURL) {
+	public void continueCrawl(String hostURL) throws IOException {
 		InputStream postInStr = executeGet(hostURL);
 
 		String imgURL = processImageRequestRegex(postInStr);

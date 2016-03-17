@@ -5,10 +5,12 @@ mid (Multiple Image Downloader) extracts the source of a given URL and downloads
 
 ## Supported Hosts
 
-* Chronos.to
-* ImageBam.com
-* ImgSpot.org
-* Img.yt
+* chronos.to
+* imagebam.com
+* imgsen.se
+* imgspot.org
+* img.yt
+* myimg.club
 
 ## Compiling & Running
 

@@ -8,10 +8,10 @@ import java.util.List;
 import mid.Property;
 import mid.Requester;
 
-public class Imgyt extends Crawler {
-	public Imgyt() {
-		requestPattern = "href=\"http://img.yt";
-		imagePattern = "href=\'http://img.yt";
+public class ImgSense extends Crawler {
+	public ImgSense() {
+		requestPattern = "href=\"http://imgsen.se";
+		imagePattern = "href=\'http://imgsen.se";
 		imageSplitPattern = "\'";
 		imageSplitIndex = 1;
 	}
@@ -19,7 +19,7 @@ public class Imgyt extends Crawler {
 	@Override
 	public void continueCrawl(String hostURL) throws IOException {
 		List<Property> properties = new ArrayList<Property>();
-		properties.add(new Property("imgContinue", "Continue+to+your+image"));
+		properties.add(new Property("imgContinue", "Continue+to+image..."));
 		InputStream postInStr = Requester.executePostWithForm(hostURL, properties);
 
 		String imgURL = processImageRequest(postInStr);

@@ -1,8 +1,11 @@
 package mid.crawlers;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.http.client.ClientProtocolException;
 
 import mid.Property;
 import mid.Requester;
@@ -16,7 +19,7 @@ public class Chronos extends Crawler {
 	}
 
 	@Override
-	public void continueCrawl(String hostURL) {
+	public void continueCrawl(String hostURL) throws ClientProtocolException, IOException {
 		List<Property> properties = new ArrayList<Property>();
 		properties.add(new Property("op", "view"));
 		properties.add(new Property("id", hostURL.split("/")[3]));

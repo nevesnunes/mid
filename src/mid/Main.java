@@ -7,9 +7,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,16 +21,12 @@ public class Main {
 		System.out.println("Enter URL or file path...");
 		
 		// Read URL
-		String target = "";
 		BufferedReader br = null;
+		String target = "";
 		try {
 			br = new BufferedReader(new InputStreamReader(System.in));
 			target = br.readLine();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
@@ -45,21 +41,19 @@ public class Main {
 			return;
 		}
 		
-		processInitialRequest(streamFromURL(target));
+		try {
+			processInitialRequest(streamFromURL(target));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private static InputStream streamFromURL(String url) {
+	private static InputStream streamFromURL(String url) throws IOException {
 		return Requester.executeGet(url);
 	}
 
-	private static InputStream streamFromFile(String url) {
-		InputStream inStr = null;
-		try {
-			inStr = new FileInputStream(url);
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
-		return inStr;
+	private static InputStream streamFromFile(String url) throws FileNotFoundException {
+		return new FileInputStream(url);
 	}
 	
 	private static void processInitialRequest(InputStream inStr) {
@@ -83,7 +77,7 @@ public class Main {
 					Matcher m = p.matcher(Pattern.quote(line));
 					while (m.find()) {
 						String hostURL = line.substring(
-								m.start(), line.length()).split("\"")[1];
+								m.start(), line.length()).split("[\" ]")[1];
 						System.out.println("Will crawl: " + hostURL);
 						hostURLs.add(hostURL);
 					}
@@ -91,15 +85,10 @@ public class Main {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-			
+			e.printStackTrace();	
 		// Delete empty folder
 		} finally {
-			try {
-				saveFolder.delete();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			saveFolder.delete();
 		}
 		
 		System.out.println("All images downloaded. Have fun~!");
@@ -107,10 +96,12 @@ public class Main {
 
 	private static final List<Crawler> crawlers;
 	static {
-		crawlers = new ArrayList<Crawler>();
-        crawlers.add(new Chronos());
-        crawlers.add(new ImageBam());
-        crawlers.add(new ImgSpot());
-        crawlers.add(new Imgyt());
+		crawlers = new ArrayList<Crawler>(Arrays.asList(
+		        new Chronos(),
+		        new ImageBam(),
+		        new ImgSense(),
+		        new ImgSpot(),
+		        new Imgyt(),
+		        new MyIMG()));
 	}
 }

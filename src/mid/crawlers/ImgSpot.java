@@ -1,5 +1,6 @@
 package mid.crawlers;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import mid.Requester;
@@ -13,8 +14,8 @@ public class ImgSpot extends Crawler {
 	}
 
 	@Override
-	public void continueCrawl(String hostURL) {
-		InputStream postInStr = Requester.executeGet(hostURL);
+	public void continueCrawl(String hostURL) throws IOException {
+		InputStream postInStr = executeGet(hostURL);
 
 		String imgURL = processImageRequest(postInStr);
 		imgURL = "http://imgspot.org" + imgURL;		
