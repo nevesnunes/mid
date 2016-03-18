@@ -12,6 +12,6 @@ Exception handling is entirely managed by the invokers of these utilities.
 
 ## Crawler
 
-Deals with malformed or failed requests, opting to call additional **Requester** methods if necessary.
+Subclasses define patterns to be matched in request processing. They also choose which **Requester** methods to call, until the image URL is available to download.
 
-Subclasses define patterns to be matched in request processing. They also dictate any further extracting to be done until the image URL is available to download.
+Malformed or failed requests are retried before being skipped.
