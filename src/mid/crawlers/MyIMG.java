@@ -10,10 +10,8 @@ import mid.Requester;
 
 public class MyIMG extends Crawler {
 	public MyIMG() {
-		requestPattern = "href=\"http://myimg.club";
-		imagePattern = "http://myimg\\.club.*jpe*g";
-		imageSplitPattern = "\"";
-		imageSplitIndex = 0;
+		requestPattern = "href=[\"\']http://myimg.club";
+		imagePattern = "http://myimg.club.*[\"\' ]";
 	}
 
 	@Override
@@ -25,7 +23,7 @@ public class MyIMG extends Crawler {
 		properties.add(new Property("next", "Continue+to+image..."));
 		InputStream postInStr = Requester.executePostWithForm(hostURL, properties);
 
-		String imgURL = processImageRequestRegex(postInStr);
+		String imgURL = processImageRequest(postInStr);
 
 		InputStream imageInStr = executeGet(imgURL);
 		Requester.downloadImage(imgURL, imageInStr);

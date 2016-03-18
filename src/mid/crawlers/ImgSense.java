@@ -10,10 +10,8 @@ import mid.Requester;
 
 public class ImgSense extends Crawler {
 	public ImgSense() {
-		requestPattern = "href=\"http://imgsen.se";
-		imagePattern = "href=\'http://imgsen.se";
-		imageSplitPattern = "\'";
-		imageSplitIndex = 1;
+		requestPattern = "href=[\"\']http://imgsen.se";
+		imagePattern = "http://imgsen.se.*[\"\' ]";
 	}
 
 	@Override

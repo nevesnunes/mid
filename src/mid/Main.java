@@ -70,7 +70,7 @@ public class Main {
 					Matcher m = p.matcher(Pattern.quote(line));
 					while (m.find()) {
 						String hostURL = line.substring(
-								m.start(), line.length()).split("[\" ]")[1];
+								m.start(), line.length()).split("[\"\' ]")[1];
 						System.out.println("Will crawl: " + hostURL);
 						hostURLs.add(hostURL);
 					}

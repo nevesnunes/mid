@@ -10,10 +10,8 @@ import mid.Requester;
 
 public class Imgyt extends Crawler {
 	public Imgyt() {
-		requestPattern = "href=\"http://img.yt";
-		imagePattern = "href=\'http://img.yt";
-		imageSplitPattern = "\'";
-		imageSplitIndex = 1;
+		requestPattern = "href=[\"\']http://img.yt";
+		imagePattern = "http://img.yt.*[\"\' ]";
 	}
 
 	@Override

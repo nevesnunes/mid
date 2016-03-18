@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -80,17 +79,15 @@ public class Requester {
 
 	public static void downloadImage(String imgURL) 
 			throws IOException {
-		URL url = new URL(imgURL);
-		downloadImage(imgURL, url.openStream());
+		downloadImage(imgURL, (new URL(imgURL)).openStream());
 	}
 
 	public static void downloadImage(String imgURL, InputStream postInStr) 
 			throws IOException {
-		BufferedImage image = null;
-		image = ImageIO.read(postInStr);
+		BufferedImage image = ImageIO.read(postInStr);
 
-		long unixTimestamp = Instant.now().getEpochSecond();
-		File outputFile = new File(saveFolderName + "/" + Long.toString(unixTimestamp) + ".png");
+		String[] URLparts = imgURL.split("/");
+		File outputFile = new File(saveFolderName + "/" + URLparts[URLparts.length - 1]);
 
 		JPEGImageWriteParam jpegParams = new JPEGImageWriteParam(null);
 		jpegParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);

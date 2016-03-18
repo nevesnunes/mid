@@ -75,7 +75,7 @@ public abstract class Crawler {
 			Matcher m = p.matcher(Pattern.quote(line));
 			while (m.find()) {
 				String hostURL = line.substring(
-						m.start(), line.length()).split("\"")[1];
+						m.start(), line.length()).split("[\"\']")[1];
 				System.out.println("Crawler: " + hostURL);
 				urls.add(hostURL);
 			}
@@ -84,7 +84,7 @@ public abstract class Crawler {
 		return urls;
 	}
 	
-	protected String processImageRequestRegex(InputStream inStr) throws IOException {
+	protected String processImageRequest(InputStream inStr) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(inStr));
         String line = null;
         Pattern p = Pattern.compile(imagePattern);
@@ -92,31 +92,13 @@ public abstract class Crawler {
 			Matcher m = p.matcher(Pattern.quote(line));
 			if (m.find()) {
 				// Split URL from remaining attributes
-				return m.group(0).split("\"")[0];
+				return m.group(0).split("[\"\' ]")[0];
 			}
 		}
-		
-		return "";
-	}
-
-	protected String processImageRequest(InputStream inStr) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(inStr));
-        String line = null;
-        int index = -1;
-        while ((line = br.readLine()) != null) {
-        	index = line.indexOf(imagePattern);
-            if (index != -1) {
-            	String imgURL = line.substring(index, line.length())
-            			.split(imageSplitPattern)[imageSplitIndex];
-            	return imgURL;
-            }
-        }
 		
 		return "";
 	}
 	
 	protected String requestPattern;
 	protected String imagePattern;
-	protected String imageSplitPattern;
-	protected int imageSplitIndex;
 }

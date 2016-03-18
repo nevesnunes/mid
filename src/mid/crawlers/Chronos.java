@@ -12,10 +12,8 @@ import mid.Requester;
 
 public class Chronos extends Crawler {
 	public Chronos() {
-		requestPattern = "href=\"http://chronos.to";
-		imagePattern = "http://chronos.to/i";
-		imageSplitPattern = "\"";
-		imageSplitIndex = 0;
+		requestPattern = "href=[\"\']http://chronos.to";
+		imagePattern = "http://chronos.to/i.*[\"\' ]";
 	}
 
 	@Override
@@ -30,7 +28,8 @@ public class Chronos extends Crawler {
 		String imgURL = processImageRequest(postInStr);
 		String[] URLparts = imgURL.split("/");
 		imgURL = "http://i" + URLparts[4] + "." + URLparts[2] +
-				"/i/" + URLparts[5] + "/" + URLparts[6] + ".jpg";		
+				"/i/" + URLparts[5] + "/" + URLparts[6] + ".jpg";
+		
 		Requester.downloadImage(imgURL);
 	}
 }

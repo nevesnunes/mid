@@ -6,17 +6,15 @@ import mid.Requester;
 
 public class ImageBam extends Crawler {
 	public ImageBam() {
-		requestPattern = "href=\"http://www.imagebam";
-		imagePattern = "http://.*imagebam\\.com.*jpe*g";
-		imageSplitPattern = "\"";
-		imageSplitIndex = 0;
+		requestPattern = "href=[\"\']http://www.imagebam";
+		imagePattern = "http://.*imagebam\\.com.*[\"\' ]";
 	}
 
 	@Override
 	public void continueCrawl(String hostURL) throws IOException {
 		InputStream postInStr = executeGet(hostURL);
 
-		String imgURL = processImageRequestRegex(postInStr);
+		String imgURL = processImageRequest(postInStr);
 
 		InputStream imageInStr = executeGet(imgURL);
 		Requester.downloadImage(imgURL, imageInStr);
