@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class Main {
 		try {
 			Paths.get(url);
 			return new FileInputStream(url);
-		} catch (InvalidPathException e) {
+		} catch (InvalidPathException | FileNotFoundException e) {
 			return Requester.executeGet(url);
 		}
 	}
