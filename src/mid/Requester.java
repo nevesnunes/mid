@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -18,7 +19,6 @@ import javax.imageio.ImageWriter;
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.FileImageOutputStream;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -71,16 +71,11 @@ public class Requester {
 		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		for (Property p : properties)
 			builder.addTextBody(p.key, p.value, ContentType.TEXT_PLAIN);
-
-		HttpEntity multipart = builder.build();
-		uploadFile.setEntity(multipart);
+		uploadFile.setEntity(builder.build());
 
 		CloseableHttpResponse response = httpClient.execute(uploadFile);
 
-		HttpEntity responseEntity = response.getEntity();
-		InputStream inStr = responseEntity.getContent();
-
-		return inStr;
+		return response.getEntity().getContent();
 	}
 
 	public static void downloadImage(String imgURL) 
@@ -116,10 +111,10 @@ public class Requester {
 
 	private static final List<Property> defaultProperties;
 	static {
-		defaultProperties = new ArrayList<Property>();
-		defaultProperties.add(new Property("User-Agent", "Mozilla/5.0 Gecko/20100101 Firefox/44.0"));
-		defaultProperties.add(new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
-		defaultProperties.add(new Property("Accept-Language", "en-US,en;q=0.5"));
-		defaultProperties.add(new Property("Accept-Encoding", "gzip"));
+		defaultProperties = new ArrayList<Property>(Arrays.asList(
+				new Property("User-Agent", "Mozilla/5.0 Gecko/20100101 Firefox/44.0"),
+				new Property("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+				new Property("Accept-Language", "en-US,en;q=0.5"),
+				new Property("Accept-Encoding", "gzip")));
 	}
 }

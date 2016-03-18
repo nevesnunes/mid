@@ -1,12 +1,12 @@
 package mid;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,20 +20,11 @@ public class Main {
 	public static void main(String[] args) {
 		System.out.println("Enter URL or file path...");
 		
-		// Read URL
-		BufferedReader br = null;
 		String target = "";
-		try {
-			br = new BufferedReader(new InputStreamReader(System.in));
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 			target = br.readLine();
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				br.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 		
 		if (target == null || target.isEmpty()) {
@@ -42,21 +33,23 @@ public class Main {
 		}
 		
 		try {
-			processInitialRequest(streamFromURL(target));
+			processInitialRequest(streamFromString(target));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private static InputStream streamFromURL(String url) throws IOException {
-		return Requester.executeGet(url);
-	}
-
-	private static InputStream streamFromFile(String url) throws FileNotFoundException {
-		return new FileInputStream(url);
+	private static InputStream streamFromString(String url) throws Exception {
+		// Test if input is a file, otherwise treat it as an URL
+		try {
+			Paths.get(url);
+			return new FileInputStream(url);
+		} catch (InvalidPathException e) {
+			return Requester.executeGet(url);
+		}
 	}
 	
-	private static void processInitialRequest(InputStream inStr) {
+	private static void processInitialRequest(InputStream inStr) throws Exception {
 		// Create folder to save images
 		long unixTimestamp = Instant.now().getEpochSecond();
 		String saveFolderName = Long.toString(unixTimestamp);
@@ -66,9 +59,8 @@ public class Main {
 		Requester.setSaveFolderName(saveFolderName);
 
 		// Search for URLs in the page source
-		BufferedReader br = new BufferedReader(new InputStreamReader(inStr));
-		String line = null;
-		try {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(inStr))) {
+			String line = "";
 			while ((line = br.readLine()) != null) {
 				for (Crawler c : crawlers) {
 					// A line can have multiple urls to crawl
@@ -84,10 +76,8 @@ public class Main {
 					c.crawl(hostURLs);
 				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();	
-		// Delete empty folder
 		} finally {
+			// Delete empty folder
 			saveFolder.delete();
 		}
 		
