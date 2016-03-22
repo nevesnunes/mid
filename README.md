@@ -7,6 +7,7 @@ mid (Multiple Image Downloader) extracts the source of a given URL and downloads
 
 * chronos.to
 * imagebam.com
+* imgmaid.net
 * imgsen.se
 * imgspot.org
 * img.yt

@@ -90,6 +90,7 @@ public class Main {
 		crawlers = new ArrayList<Crawler>(Arrays.asList(
 		        new Chronos(),
 		        new ImageBam(),
+		        new IMGMaid(),
 		        new ImgSense(),
 		        new ImgSpot(),
 		        new Imgyt(),
