@@ -16,6 +16,6 @@ mid (Multiple Image Downloader) extracts the source of a given URL and downloads
 ## Compiling & Running
 
 ```
-javac -cp "jars/*" src/mid/*.java src/mid/crawlers/*.java -d bin/
-java -cp "jars/*:bin/" mid.Main
+make
+make run
 ```
