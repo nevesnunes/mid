@@ -17,6 +17,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.FileImageOutputStream;
+import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -34,9 +35,25 @@ public class Requester {
 
 	public static InputStream executeGet(String targetURL, List<Property> properties) 
 			throws IOException {
-		HttpURLConnection conn = generateConnection(targetURL);
-		for (Property p : properties)
-			conn.setRequestProperty(p.key, p.value);
+		HttpURLConnection conn = makeConnection(targetURL, properties);
+		
+		int status = conn.getResponseCode();
+		if ((status == HttpURLConnection.HTTP_MOVED_TEMP
+				|| status == HttpURLConnection.HTTP_MOVED_PERM
+				|| status == HttpURLConnection.HTTP_SEE_OTHER)) {
+			System.out.println("Got status " + status);
+
+			// get redirect url from "location" header field
+			String newURL = conn.getHeaderField("Location");
+			System.out.println("Redirect to URL : " + newURL);
+
+			// get the cookie if needed, for login
+			String cookies = conn.getHeaderField("Set-Cookie");
+
+			// open the new connnection again
+			conn = makeConnection(newURL, properties);
+			conn.setRequestProperty("Cookie", cookies);
+		}
 
 		// Stream wrapper is based on encoding type
 		String encoding = conn.getContentEncoding();
@@ -47,17 +64,27 @@ public class Requester {
 		}
 	}
 
-	private static HttpURLConnection generateConnection(String targetURL) 
+	private static HttpURLConnection makeConnection(String targetURL, List<Property> properties) 
 			throws IOException {
-		// Sanitize URL
-		int index = targetURL.indexOf("http://");
-		if (index == -1) {
+		// Assume http if no protocol given		
+		int httpIndex = targetURL.indexOf("http://");
+		int httpsIndex = targetURL.indexOf("https://");
+		if ((httpIndex == -1) && (httpsIndex == -1)) {
 			targetURL = "http://" + targetURL;
 		}
-
+		
 		URL url = new URL(targetURL);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		HttpURLConnection conn;
 		HttpURLConnection.setFollowRedirects(true);
+		if (httpIndex != -1) {
+			conn = (HttpURLConnection) url.openConnection();
+		} else {
+			conn = (HttpsURLConnection) url.openConnection();
+		}
+
+		conn.setReadTimeout(5000);
+		for (Property p : properties)
+			conn.setRequestProperty(p.key, p.value);
 
 		return conn;
 	}
