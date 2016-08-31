@@ -91,6 +91,7 @@ public class Main {
 		        new Chronos(),
 		        new ImageBam(),
 		        new IMGMaid(),
+		        new ImgCandy(),
 		        new ImgSense(),
 		        new ImgSpot(),
 		        new Imgyt(),
