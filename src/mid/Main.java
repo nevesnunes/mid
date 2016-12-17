@@ -89,6 +89,7 @@ public class Main {
 	static {
 		crawlers = new ArrayList<Crawler>(Arrays.asList(
 		        new Chronos(),
+		        new CoreIMG(),
 		        new ImageBam(),
 		        new IMGMaid(),
 		        new ImgCandy(),
