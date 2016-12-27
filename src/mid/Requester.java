@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,14 +19,22 @@ import javax.imageio.ImageWriter;
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 public class Requester {
 	public static InputStream executeGet(String targetURL) 
@@ -35,22 +44,22 @@ public class Requester {
 
 	public static InputStream executeGet(String targetURL, List<Property> properties) 
 			throws IOException {
-		HttpURLConnection conn = makeConnection(targetURL, properties);
+		URLConnection conn = makeConnection(targetURL, properties);
 		
-		int status = conn.getResponseCode();
+		int status = ((HttpURLConnection) conn).getResponseCode();
 		if ((status == HttpURLConnection.HTTP_MOVED_TEMP
 				|| status == HttpURLConnection.HTTP_MOVED_PERM
 				|| status == HttpURLConnection.HTTP_SEE_OTHER)) {
 			System.out.println("Got status " + status);
 
-			// get redirect url from "location" header field
+			// Get redirect url from "location" header field
 			String newURL = conn.getHeaderField("Location");
-			System.out.println("Redirect to URL : " + newURL);
+			System.out.println("Redirect to URL: " + newURL);
 
-			// get the cookie if needed, for login
+			// Get the cookie if needed, for login
 			String cookies = conn.getHeaderField("Set-Cookie");
 
-			// open the new connnection again
+			// Open the new connnection again
 			conn = makeConnection(newURL, properties);
 			conn.setRequestProperty("Cookie", cookies);
 		}
@@ -64,7 +73,7 @@ public class Requester {
 		}
 	}
 
-	private static HttpURLConnection makeConnection(String targetURL, List<Property> properties) 
+	private static URLConnection makeConnection(String targetURL, List<Property> properties) 
 			throws IOException {
 		// Assume http if no protocol given		
 		int httpIndex = targetURL.indexOf("http://");
@@ -74,11 +83,11 @@ public class Requester {
 		}
 		
 		URL url = new URL(targetURL);
-		HttpURLConnection conn;
+		URLConnection conn;
 		HttpURLConnection.setFollowRedirects(true);
 		if (httpIndex != -1) {
 			conn = (HttpURLConnection) url.openConnection();
-		} else {
+		} else {		
 			conn = (HttpsURLConnection) url.openConnection();
 		}
 
@@ -91,16 +100,52 @@ public class Requester {
 
 	public static InputStream executePostWithForm(String targetURL, List<Property> properties)
 			throws ClientProtocolException, IOException {
-		CloseableHttpClient httpClient = HttpClients.createDefault();
-		HttpPost uploadFile = new HttpPost(targetURL);
+		// Create SSL Client
+		SSLContext sslcontext = SSLContexts.createSystemDefault();
+		SSLConnectionSocketFactory sslConnectionSocketFactory = 
+			new SSLConnectionSocketFactory(
+					sslcontext,
+					new String[] { "TLSv1", "SSLv3" },
+					null,
+					SSLConnectionSocketFactory.getDefaultHostnameVerifier());		
+		Registry<ConnectionSocketFactory> socketFactoryRegistry = 
+			RegistryBuilder.<ConnectionSocketFactory>create()
+				.register("http", PlainConnectionSocketFactory.INSTANCE)
+				.register("https", sslConnectionSocketFactory)
+				.build();
+		PoolingHttpClientConnectionManager cm = 
+			new PoolingHttpClientConnectionManager(socketFactoryRegistry);		
+		CloseableHttpClient httpClient = HttpClients.custom()
+			.setSSLSocketFactory(sslConnectionSocketFactory)
+			.setConnectionManager(cm)
+			.build();
 
 		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		for (Property p : properties)
 			builder.addTextBody(p.key, p.value, ContentType.TEXT_PLAIN);
+		HttpPost uploadFile = new HttpPost(targetURL);
 		uploadFile.setEntity(builder.build());
 
+		// Send POST
 		CloseableHttpResponse response = httpClient.execute(uploadFile);
+		
+		int status = response.getStatusLine().getStatusCode();
+		if ((status == HttpURLConnection.HTTP_MOVED_TEMP
+				|| status == HttpURLConnection.HTTP_MOVED_PERM
+				|| status == HttpURLConnection.HTTP_SEE_OTHER)) {
+			System.out.println("Got status " + status);
 
+			// Get redirect url from "location" header field
+			String newURL = response.getFirstHeader("Location").getValue();
+			System.out.println("Redirect to URL: " + newURL);
+
+			// Send the new POST
+			uploadFile = new HttpPost(newURL);
+			uploadFile.setEntity(builder.build());
+			response = httpClient.execute(uploadFile);
+		}
+
+		// Get response
 		return response.getEntity().getContent();
 	}
 

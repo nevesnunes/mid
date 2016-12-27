@@ -10,14 +10,14 @@ import mid.Requester;
 
 public class Imgyt extends Crawler {
 	public Imgyt() {
-		requestPattern = "href=[\"\']http://img.yt";
-		imagePattern = "http://img.yt.*[\"\' ]";
+		requestPattern = "href=[\"\']https?://img.yt";
+		imagePattern = "https?://img.yt.*[\"\' ]";
 	}
 
 	@Override
 	public void continueCrawl(String hostURL) throws IOException {
 		List<Property> properties = new ArrayList<Property>();
-		properties.add(new Property("imgContinue", "Continue+to+your+image"));
+		properties.add(new Property("imgContinue", "Continue+to+your+image+..."));
 		InputStream postInStr = Requester.executePostWithForm(hostURL, properties);
 
 		String imgURL = processImageRequest(postInStr);
